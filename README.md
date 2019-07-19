@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # itart
 
 ## Project setup
@@ -27,3 +28,7 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+=======
+# prote_34
+项目
+>>>>>>> a5f6d98871c26347eea99de3f6a09a74dc816128
