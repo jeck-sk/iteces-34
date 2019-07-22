@@ -20,3 +20,11 @@ export const getuserlist = (params) => {
     params
   })
 }
+// 添加
+export const adduser = (data) => {
+  return axios({
+    url: 'users',
+    method: 'post',
+    data
+  })
+}

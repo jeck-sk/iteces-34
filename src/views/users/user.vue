@@ -11,7 +11,7 @@
       <el-input @keyup.enter.native="int" placeholder="请输入内容" v-model="userobj.query" class="input-with-select" style="width:310px;margin-right:8px">
        <el-button @click="int" slot="append" icon="el-icon-search"></el-button>
       </el-input>
-      <el-button  type="success" plain>添加用户</el-button>
+      <el-button  @click="adddialogFormVisible = true" type="success" plain>添加用户</el-button>
   </div>
   <!-- 表格 -->
     <el-table :data="userlist" style="width: 100%; margin-top:10px" border>
@@ -57,14 +57,37 @@
       layout="total, sizes, prev, pager, next, jumper"
       :total="total">
     </el-pagination>
+    <!-- 添加对话框 -->
+    <el-dialog title="添加用户" :visible.sync="adddialogFormVisible" >
+      <el-form  :model="addForm" ref="addForm" label-width="100px"  :rules='rules' class="demo-addForm">
+      <el-form-item label="用户名" prop="username">
+        <el-input type="text" v-model="addForm.username" auto-complete="off"></el-input>
+      </el-form-item>
+      <el-form-item label="密码" prop="password">
+        <el-input type="text" v-model="addForm.password" auto-complete="off"></el-input>
+      </el-form-item>
+      <el-form-item label="邮箱" prop="email">
+        <el-input type="text" v-model="addForm.email" auto-complete="off"></el-input>
+      </el-form-item>
+      <el-form-item label="电话" prop="mobile">
+        <el-input type="text" v-model="addForm.mobile" auto-complete="off"></el-input>
+      </el-form-item>
+     </el-form>
+     <span slot="footer" class="dialog-footer">
+      <el-button @click="adddialogFormVisible = false">取 消</el-button>
+      <el-button type="primary" @click="addsubmit">确 定</el-button>
+     </span>
+    </el-dialog>
+    <!-- 编辑用户 -->
 </div>
 </template>
 <script>
-import { getuserlist } from '@/apl/user_index.js'
+import { getuserlist, adduser } from '@/apl/user_index.js'
 export default {
   data () {
     return {
       total: 0,
+      adddialogFormVisible: false,
       userobj: {
         query: '',
         // 总共几页
@@ -72,7 +95,30 @@ export default {
         // 每页个数
         pagesize: 5
       },
-      userlist: []
+      userlist: [],
+      addForm: {
+        username: '',
+        password: '',
+        email: '',
+        mobile: ''
+      },
+      rules: {
+        username: [
+          { required: true, message: '请输入用户名', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' }
+        ],
+        email: [
+          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          // 添加正则验证规则
+          { pattern: /\w+[@]\w+[.]\w+/, message: '请输入合法的电子邮箱', trigger: 'blur' }
+        ],
+        mobile: [
+          { required: true, message: '请输入手机号', trigger: 'blur' },
+          { pattern: /^1\d{10}$/, message: '请输入合法的手机号', trigger: 'blur' }
+        ]
+      }
     }
   },
   methods: {
@@ -90,6 +136,35 @@ export default {
       this.userobj.pagenum = val
       // 重新获取数据
       this.int()
+    },
+    // 添加
+    addsubmit () {
+      this.$refs.addForm.validate(valid => {
+        if (valid) {
+          // 是this.addfrom
+          adduser(this.addForm)
+            .then(res => {
+              console.log(res)
+              if (res.data.meta.status === 201) {
+                this.$message({
+                  type: 'success',
+                  message: '成功添加'
+                })
+                this.adddialogFormVisible = false
+                this.$refs.addForm.resetFields()
+                this.int()
+              }
+            })
+            .catch(err => {
+              console.log(err)
+            })
+        } else {
+          this.$message({
+            type: 'error',
+            message: '添加'
+          })
+        }
+      })
     },
     //  数据初始化
     int () {
