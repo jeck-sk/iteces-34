@@ -8,7 +8,7 @@ axios.interceptors.request.use(function (config) {
   // 在发送请求之前做些什么
   // 做点什么：通过请求头的方式传递token数据，并且传递时的键必须设置为Authorization
   //   1.获取token
-  var token = localStorage.getItem('itart_manage_token')
+  var token = localStorage.getItem('itcast_manage_token')
   console.log(token)
   if (token) {
     //   2.通过请求头的方式设置token的传递,通过config获取到请求头

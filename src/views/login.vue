@@ -48,7 +48,7 @@ export default {
               console.log(res)
               if (res.data.meta.status === 200) {
                 //
-                localStorage.setItem('itart_manage_token', res.data.data.token)
+                localStorage.setItem('itcast_manage_token', res.data.data.token)
                 //   进行路由跳转
                 this.$router.push({ name: 'home' })
               } else {
