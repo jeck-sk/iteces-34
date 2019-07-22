@@ -29,6 +29,7 @@
           <el-switch v-model="scope.row.mg_state"
           active-color="#13ce66"
           inactive-color="#ff4949"
+          @change="state(scope.row.id,scope.row.mg_state)"
          ></el-switch>
         </template>
       </el-table-column>
@@ -96,10 +97,35 @@
         <el-button type="primary" @click='editsubmit'>确 定</el-button>
       </div>
     </el-dialog>
+    <!-- 分配角色 -->
+    <!-- <el-dialog title="分配角色" :visible.sync="editdialogFormVisible">
+      <el-form :model="editform"  ref='editform'  :label-width="'80px'" :rules='rules'>
+        <el-form-item label="当前用户">
+          <el-input v-model="editform.username" auto-complete="off" disabled style='width:100px'></el-input>
+        </el-form-item>
+         <el-form-item label="当前用户">
+      <el-dropdown>
+         <el-button type="primary">更多菜单<i class="el-icon-arrow-down el-icon--right"></i>
+         </el-button>
+         <el-dropdown-menu slot="dropdown">
+           <el-dropdown-item>黄金糕</el-dropdown-item>
+           <el-dropdown-item>狮子头</el-dropdown-item>
+           <el-dropdown-item>螺蛳粉</el-dropdown-item>
+           <el-dropdown-item>双皮奶</el-dropdown-item>
+           <el-dropdown-item>蚵仔煎</el-dropdown-item>
+         </el-dropdown-menu>
+       </el-dropdown>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="editdialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click='editsubmit'>确 定</el-button>
+      </div>
+    </el-dialog> -->
 </div>
 </template>
 <script>
-import { getuserlist, adduser, edituser, deluserByld } from '@/apl/user_index.js'
+import { getuserlist, adduser, edituser, deluserByld, userstate } from '@/apl/user_index.js'
 export default {
   data () {
     return {
@@ -233,8 +259,8 @@ export default {
                 type: 'success',
                 message: '删除成功'
               })
-              this.userobj.pagenum = Math.cail((this.total - 1) / this.userobj.pagesize) ? --this.userobj.pagenum
-                : this.userobj.pagesize
+              this.userobj.pagenum = Math.ceil((this.total - 1) / this.userobj.pagesize) ? --this.userobj.pagenum : this.userobj.pagenum
+
               this.int()
             }
           }).catch(() => {
@@ -245,6 +271,19 @@ export default {
           })
       })
     },
+    // 状态修改
+    // 主意是传两个参数
+    async state (id, type) {
+      let res = await userstate(id, type)
+      console.log(res)
+      if (res.data.meta.status === 200) {
+        this.$message({
+          type: 'success',
+          message: '状态修改成功'
+        })
+      }
+    },
+
     //  数据初始化
     int () {
       getuserlist(this.userobj)

@@ -41,3 +41,9 @@ export const deluserByld = (id) => {
     method: 'delete'
   })
 }
+export const userstate = (uid, type) => {
+  return axios({
+    url: `users/${uid}/state/$(type)`,
+    method: 'put'
+  })
+}
