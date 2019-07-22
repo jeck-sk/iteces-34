@@ -6,10 +6,10 @@
       <el-breadcrumb-item>用户列表</el-breadcrumb-item>
    </el-breadcrumb>
   <div style="margin: 15px 0;" >
-      <el-input placeholder="请输入内容" v-model="userobj.query" class="input-with-select" style="width:310px;margin-right:8px">
-       <el-button slot="append" icon="el-icon-search"></el-button>
+      <el-input @keyup.enter.native="int" placeholder="请输入内容" v-model="userobj.query" class="input-with-select" style="width:310px;margin-right:8px">
+       <el-button @click="int" slot="append" icon="el-icon-search"></el-button>
       </el-input>
-      <el-button type="success" plain>添加用户</el-button>
+      <el-button  type="success" plain>添加用户</el-button>
   </div>
     <el-table :data="userlist" style="width: 100%; margin-top:10px" border>
     <el-table-column type="index" style="width:50px" >
@@ -54,20 +54,26 @@ export default {
         pagesize: '5'
       },
       userlist: []
+
     }
   },
-  methods: {},
+  methods: {
+
+    int () {
+      getuserlist(this.userobj)
+        .then(res => {
+          console.log(res)
+          if (res.data.meta.status === 200) {
+            this.userlist = res.data.data.users
+          }
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    }
+  },
   mounted () {
-    getuserlist(this.userobj)
-      .then(res => {
-        console.log(res)
-        if (res.data.meta.status === 200) {
-          this.userlist = res.data.data.users
-        }
-      })
-      .catch(err => {
-        console.log(err)
-      })
+    this.int()
   }
 }
 </script>
