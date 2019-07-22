@@ -35,14 +35,14 @@
    <!-- 操作 -->
     <el-table-column label="操作" width='280'>
       <template slot-scope="scope">
-          <el-tooltip class="item" effect="dark" content="编辑" placement="top">
-            <el-button type="primary" icon="el-icon-edit"></el-button>
+          <el-tooltip class="item"  effect="dark" content="编辑" placement="top">
+            <el-button type="primary" icon="el-icon-edit"  @click='showEditDialog(scope.row)'></el-button>
+          </el-tooltip>
+         <el-tooltip class="item" effect="dark" content="删除" placement="top">
+            <el-button type="primary" icon="el-icon-delete" @click='del(scope.row.id)'></el-button>
           </el-tooltip>
           <el-tooltip class="item" effect="dark" content="分配角色" placement="top">
             <el-button type="primary" icon="el-icon-loading"></el-button>
-          </el-tooltip>
-          <el-tooltip class="item" effect="dark" content="删除" placement="top">
-            <el-button type="primary" icon="el-icon-delete"></el-button>
           </el-tooltip>
         </template>
     </el-table-column>
@@ -52,7 +52,7 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page="userobj.pagenum"
-      :page-sizes="[1, 2, 3, 4]"
+      :page-sizes="[1,2, 3, 4]"
       :page-size="userobj.pagesize"
       layout="total, sizes, prev, pager, next, jumper"
       :total="total">
@@ -78,11 +78,28 @@
       <el-button type="primary" @click="addsubmit">确 定</el-button>
      </span>
     </el-dialog>
-    <!-- 编辑用户 -->
+    <!-- 编辑对话框 -->
+    <el-dialog title="编辑用户" :visible.sync="editdialogFormVisible">
+      <el-form :model="editform"  ref='editform'  :label-width="'80px'" :rules='rules'>
+        <el-form-item label="用户名">
+          <el-input v-model="editform.username" auto-complete="off" disabled style='width:100px'></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop='email'>
+          <el-input v-model="editform.email" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="手机号" prop='mobile'>
+          <el-input v-model="editform.mobile" auto-complete="off"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="editdialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click='editsubmit'>确 定</el-button>
+      </div>
+    </el-dialog>
 </div>
 </template>
 <script>
-import { getuserlist, adduser } from '@/apl/user_index.js'
+import { getuserlist, adduser, edituser, deluserByld } from '@/apl/user_index.js'
 export default {
   data () {
     return {
@@ -99,6 +116,13 @@ export default {
       addForm: {
         username: '',
         password: '',
+        email: '',
+        mobile: ''
+      },
+      editdialogFormVisible: false,
+      editform: {
+        id: '',
+        username: '',
         email: '',
         mobile: ''
       },
@@ -122,6 +146,7 @@ export default {
     }
   },
   methods: {
+
     handleSizeChange (val) {
       console.log(`每页 ${val} 条`)
       // 修改全局pagesize
@@ -164,6 +189,60 @@ export default {
             message: '添加'
           })
         }
+      })
+    },
+    showEditDialog (row) {
+      this.editdialogFormVisible = true
+      this.editform.id = row.id
+      this.editform.username = row.username
+      this.editform.email = row.email
+      this.editform.mobile = row.mobile
+      var res = this.editform.id = row.id
+      console.log(res)
+    },
+    // 编辑
+    async editsubmit () {
+      let res = await edituser(this.editform)
+      console.log(res)
+      if (res.data.meta.status === 200) {
+        this.$message({
+          type: 'success',
+          message: '成功编辑'
+        })
+        this.editdialogFormVisible = false
+        this.$refs.editform.resetFields()
+        this.int()
+      } else {
+        this.$message({
+          type: 'error',
+          message: '数据编辑失败'
+        })
+      }
+    },
+    // 删除
+    del (id) {
+      this.$confirm(`此操作将永久删除id号为${id}的用户, 是否继续?`, '删除提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        deluserByld(id)
+          .then(res2 => {
+            if (res2.data.meta.status === 200) {
+              this.$message({
+                type: 'success',
+                message: '删除成功'
+              })
+              this.userobj.pagenum = Math.cail((this.total - 1) / this.userobj.pagesize) ? --this.userobj.pagenum
+                : this.userobj.pagesize
+              this.int()
+            }
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '取消删除失败'
+            })
+          })
       })
     },
     //  数据初始化

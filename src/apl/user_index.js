@@ -28,3 +28,16 @@ export const adduser = (data) => {
     data
   })
 }
+export const edituser = (data) => {
+  return axios({
+    url: `users/${data.id}`,
+    method: 'put',
+    data: { email: data.email, mobile: data.mobile }
+  })
+}
+export const deluserByld = (id) => {
+  return axios({
+    url: `users/${id}`,
+    method: 'delete'
+  })
+}
