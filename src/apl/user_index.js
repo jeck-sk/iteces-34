@@ -13,3 +13,10 @@ export const login = (data) => {
     data
   })
 }
+// 获取所有用户数据
+export const getuserlist = (params) => {
+  return axios({
+    url: 'users',
+    params
+  })
+}
