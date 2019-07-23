@@ -43,13 +43,13 @@
             <el-button type="primary" icon="el-icon-delete" @click='del(scope.row.id)'></el-button>
           </el-tooltip>
           <el-tooltip class="item" effect="dark" content="分配角色" placement="top">
-            <el-button type="primary" icon="el-icon-loading"></el-button>
+            <el-button type="primary" icon="el-icon-loading" @click='showGrantDialog(scope.row)'></el-button>
           </el-tooltip>
         </template>
     </el-table-column>
   </el-table>
   <!-- 分页 -->
-  <el-pagination
+    <el-pagination
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page="userobj.pagenum"
@@ -97,35 +97,33 @@
         <el-button type="primary" @click='editsubmit'>确 定</el-button>
       </div>
     </el-dialog>
-    <!-- 分配角色 -->
-    <!-- <el-dialog title="分配角色" :visible.sync="editdialogFormVisible">
-      <el-form :model="editform"  ref='editform'  :label-width="'80px'" :rules='rules'>
-        <el-form-item label="当前用户">
-          <el-input v-model="editform.username" auto-complete="off" disabled style='width:100px'></el-input>
+   <!--  分配角色 -->
+   <el-dialog title="分配角色" :visible.sync="grantaVisible">
+      <el-form :model="grantformForm" :label-width="'80px'">
+        <el-form-item label="用户名:">
+          <span>{{grantformForm.username}}</span>
         </el-form-item>
-         <el-form-item label="当前用户">
-      <el-dropdown>
-         <el-button type="primary">更多菜单<i class="el-icon-arrow-down el-icon--right"></i>
-         </el-button>
-         <el-dropdown-menu slot="dropdown">
-           <el-dropdown-item>黄金糕</el-dropdown-item>
-           <el-dropdown-item>狮子头</el-dropdown-item>
-           <el-dropdown-item>螺蛳粉</el-dropdown-item>
-           <el-dropdown-item>双皮奶</el-dropdown-item>
-           <el-dropdown-item>蚵仔煎</el-dropdown-item>
-         </el-dropdown-menu>
-       </el-dropdown>
+        <el-form-item label="角色:">
+          <el-select v-model="grantformForm.rid" clearable placeholder="请选择">
+            <el-option
+              v-for="item in roleList"
+              :key="item.id"
+              :label="item.roleName"
+              :value="item.id"
+            ></el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="editdialogFormVisible = false">取 消</el-button>
-        <el-button type="primary" @click='editsubmit'>确 定</el-button>
+        <el-button @click="grantaVisible = false">取 消</el-button>
+        <el-button type="primary" @click='grantasubmit'>确 定</el-button>
       </div>
-    </el-dialog> -->
+    </el-dialog>
 </div>
 </template>
 <script>
-import { getuserlist, adduser, edituser, deluserByld, userstate } from '@/apl/user_index.js'
+import { getuserlist, adduser, edituser, deluserByld, userstate, grantUserRole } from '@/apl/user_index.js'
+import { getroleslist } from '@/apl/role_index.js'
 export default {
   data () {
     return {
@@ -168,6 +166,13 @@ export default {
           { required: true, message: '请输入手机号', trigger: 'blur' },
           { pattern: /^1\d{10}$/, message: '请输入合法的手机号', trigger: 'blur' }
         ]
+      },
+      grantaVisible: false,
+      roleList: [],
+      grantformForm: {
+        id: '',
+        rid: '',
+        username: 'jeck'
       }
     }
   },
@@ -274,6 +279,7 @@ export default {
     // 状态修改
     // 主意是传两个参数
     async state (id, type) {
+      console.log(type)
       let res = await userstate(id, type)
       console.log(res)
       if (res.data.meta.status === 200) {
@@ -281,9 +287,34 @@ export default {
           type: 'success',
           message: '状态修改成功'
         })
+        this.int()
       }
     },
-
+    async grantasubmit () {
+      if (!this.grantformForm.rid) {
+        this.$message({
+          type: 'warning',
+          message: '请选择一个角色'
+        })
+      } else {
+        let res = await grantUserRole(this.grantformForm)
+        if (res.data.meta.status === 200) {
+          this.$message({
+            type: 'success',
+            message: '角色设置成功'
+          })
+          this.grantaVisible = false
+          this.int()
+        }
+      }
+    }, // 分配角色
+    showGrantDialog (row) {
+      console.log(1234)
+      this.grantaVisible = true
+      this.grantformForm.id = row.id
+      this.grantformForm.username = row.username
+      this.grantformForm.rid = row.rid
+    },
     //  数据初始化
     int () {
       getuserlist(this.userobj)
@@ -297,11 +328,17 @@ export default {
         .catch(err => {
           console.log(err)
         })
+    },
+    async roleListInit () {
+      let res = await getroleslist()
+      this.roleList = res.data.data
     }
   },
+
   mounted () {
     // this调用
     this.int()
+    this.roleListInit()
   }
 }
 </script>

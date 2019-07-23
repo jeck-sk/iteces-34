@@ -11,8 +11,8 @@
           class="el-menu-vertical-demo"
           background-color="#545c64"
           text-color="#fff"
-          active-text-color="#ffd04b"
-     >
+          active-text-color="#ffd04b">
+   <!-- 用户管理 -->
       <el-submenu index="1">
         <template slot="title">
           <i class="el-icon-location"></i>
@@ -23,7 +23,8 @@
           <span slot="title">用户列表</span>
         </el-menu-item>
       </el-submenu>
-       <el-submenu index="2">
+      <!-- 权限管理 -->
+      <el-submenu index="2">
         <template slot="title">
           <i class="el-icon-location"></i>
           <span>权限管理</span>

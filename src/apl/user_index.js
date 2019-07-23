@@ -43,7 +43,15 @@ export const deluserByld = (id) => {
 }
 export const userstate = (uid, type) => {
   return axios({
-    url: `users/${uid}/state/$(type)`,
+    url: `users/${uid}/state/${type}`,
     method: 'put'
+  })
+}
+// 分配用户角色
+export const grantUserRole = (data) => {
+  return axios({
+    url: `users/${data.id}/role`,
+    method: 'put',
+    data: { rid: data.rid }
   })
 }
